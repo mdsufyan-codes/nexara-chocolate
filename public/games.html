@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>NEXARA — Scan. Play. Indulge.</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#060d1a;color:#fdf8f2;font-family:'Space Mono',monospace;min-height:100vh;overflow-x:hidden}
+.wrap{max-width:960px;margin:0 auto;padding:20px}
+.title{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:900;text-align:center;letter-spacing:.1em;background:linear-gradient(180deg,#fdf8f2,#c9a84c);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:4px}
+.sub{font-size:10px;letter-spacing:.4em;color:#c9a84c;text-align:center;margin-bottom:24px;text-transform:uppercase}
+.back-link{display:inline-flex;align-items:center;gap:8px;font-size:10px;letter-spacing:.3em;color:#c9a84c;text-transform:uppercase;text-decoration:none;margin-bottom:20px;opacity:.7;transition:.3s}
+.back-link:hover{opacity:1}
+.game-area{display:grid;grid-template-columns:1fr 270px;gap:24px;align-items:start}
+@media(max-width:720px){.game-area{grid-template-columns:1fr}}
+canvas{display:block;width:100%;border:1px solid rgba(201,168,76,.3);box-shadow:0 0 40px rgba(201,168,76,.1)}
+.panel{background:rgba(10,22,40,.8);border:1px solid rgba(201,168,76,.25);padding:18px;display:flex;flex-direction:column;gap:14px}
+.player-card{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);padding:14px;position:relative;transition:.3s}
+.player-card.active{border-color:#c9a84c;background:rgba(201,168,76,.15)}
+.turn-dot{position:absolute;top:12px;right:12px;width:8px;height:8px;border-radius:50%;background:#c9a84c;opacity:0;box-shadow:0 0 8px #c9a84c}
+.player-card.active .turn-dot{opacity:1}
+.p-name{font-size:11px;letter-spacing:.25em;color:#c9a84c;text-transform:uppercase;margin-bottom:4px}
+.p-pos{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:#fdf8f2}
+.p-label{font-size:9px;color:rgba(253,248,242,.45);letter-spacing:.2em}
+.dice-area{text-align:center}
+.dice{width:64px;height:64px;background:rgba(201,168,76,.1);border:2px solid rgba(201,168,76,.4);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:2.2rem;transition:transform .1s}
+.dice.rolling{animation:roll .5s ease}
+@keyframes roll{0%,100%{transform:rotate(0)}25%{transform:rotate(-20deg)}75%{transform:rotate(20deg)}}
+.btn{width:100%;padding:13px;background:transparent;border:1px solid #c9a84c;color:#c9a84c;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.3em;text-transform:uppercase;cursor:pointer;transition:.3s}
+.btn:hover{background:rgba(201,168,76,.15)}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn.primary{background:#c9a84c;color:#060d1a;font-weight:700}
+.btn.primary:hover{background:#e7cf86}
+.log{background:rgba(6,13,26,.9);border:1px solid rgba(201,168,76,.15);padding:10px;max-height:150px;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
+.log-entry{font-size:9px;letter-spacing:.1em;color:rgba(253,248,242,.55);padding:3px 0;border-bottom:1px solid rgba(201,168,76,.07)}
+.log-entry.special{color:#c9a84c}
+.log-entry.win{color:#e7cf86;font-weight:700}
+.divider-gold{height:1px;background:linear-gradient(90deg,transparent,#c9a84c,transparent);margin:2px 0}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:9px;letter-spacing:.15em;color:rgba(253,248,242,.55)}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.overlay{position:fixed;inset:0;background:rgba(6,13,26,.93);display:none;align-items:center;justify-content:center;z-index:100}
+.overlay.show{display:flex}
+.win-box{background:#0a1628;border:1px solid #c9a84c;padding:44px;text-align:center;box-shadow:0 0 80px rgba(201,168,76,.3);max-width:360px;width:90%}
+.win-title{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:900;color:#c9a84c;margin-bottom:8px}
+.win-sub{font-size:10px;letter-spacing:.3em;color:rgba(253,248,242,.65);margin-bottom:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="index.html" class="back-link">← Back to Nexara</a>
+  <div class="title">NEXARA</div>
+  <div class="sub">Scan · Play · Indulge</div>
+  <div class="game-area">
+    <div><canvas id="board" width="500" height="500"></canvas></div>
+    <div class="panel">
+      <div class="player-card active" id="pc1">
+        <div class="turn-dot"></div>
+        <div class="p-name">You</div>
+        <div class="p-pos" id="pos1">1</div>
+        <div class="p-label">POSITION</div>
+      </div>
+      <div class="player-card" id="pc2">
+        <div class="turn-dot"></div>
+        <div class="p-name">Computer</div>
+        <div class="p-pos" id="pos2">1</div>
+        <div class="p-label">POSITION</div>
+      </div>
+      <div class="dice-area">
+        <div class="dice" id="dice">🎲</div>
+        <div style="font-size:9px;color:rgba(253,248,242,.35);letter-spacing:.2em;margin-bottom:8px" id="dice-val">ROLL THE DICE</div>
+      </div>
+      <button class="btn primary" id="rollBtn" onclick="rollDice()">ROLL DICE →</button>
+      <div class="divider-gold"></div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#c0392b"></div>SNAKE</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#c9a84c"></div>LADDER</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#4a90d9"></div>YOU</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#e74c3c"></div>CPU</div>
+      </div>
+      <div class="divider-gold"></div>
+      <div class="log" id="log"></div>
+      <button class="btn" onclick="resetGame()">NEW GAME</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="win-box">
+    <div class="win-title" id="winTitle">YOU WIN!</div>
+    <div class="divider-gold" style="margin:12px 0"></div>
+    <div class="win-sub" id="winSub">Congratulations! You reached square 100!</div>
+    <button class="btn primary" onclick="resetGame()" style="margin-top:24px">PLAY AGAIN →</button>
+    <a href="index.html" style="display:block;margin-top:12px;font-size:9px;letter-spacing:.25em;color:rgba(201,168,76,.6);text-decoration:none">← BACK TO NEXARA</a>
+  </div>
+</div>
+
+<script>
+const SNAKES={16:6,47:26,49:11,56:53,62:19,64:60,87:24,93:73,95:75,99:78};
+const LADDERS={4:14,9:31,20:38,28:84,40:59,51:67,63:81,71:91};
+const DICE_FACES=['','⚀','⚁','⚂','⚃','⚄','⚅'];
+const canvas=document.getElementById('board');
+const ctx=canvas.getContext('2d');
+const SZ=canvas.width/10;
+let pos=[1,1],turn=0,gameOver=false,animating=false;
+let animPos=[{x:0,y:0},{x:0,y:0}];
+
+function cellToXY(n){
+  n=Math.max(1,Math.min(100,n));
+  const idx=n-1,row=Math.floor(idx/10),col=idx%10;
+  const r=9-row,c=(row%2===0)?col:(9-col);
+  return{x:c*SZ+SZ/2,y:r*SZ+SZ/2};
+}
+
+function drawBoard(){
+  ctx.clearRect(0,0,500,500);
+  for(let i=0;i<100;i++){
+    const row=Math.floor(i/10),col=i%10;
+    const r=9-row,c=(row%2===0)?col:(9-col);
+    const x=c*SZ,y=r*SZ;
+    const num=(row%2===0)?(row*10+col+1):((row+1)*10-col);
+    ctx.fillStyle=(r+c)%2===0?'rgba(10,22,40,0.95)':'rgba(18,36,65,0.95)';
+    ctx.fillRect(x,y,SZ,SZ);
+    ctx.strokeStyle='rgba(201,168,76,0.18)';
+    ctx.strokeRect(x,y,SZ,SZ);
+    ctx.fillStyle='rgba(201,168,76,0.4)';
+    ctx.font=`bold ${SZ*0.22}px monospace`;
+    ctx.textAlign='left';ctx.textBaseline='top';
+    ctx.fillText(num,x+3,y+3);
+  }
+  Object.entries(LADDERS).forEach(([from,to])=>{
+    const a=cellToXY(+from),b=cellToXY(+to);
+    ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
+    ctx.strokeStyle='rgba(201,168,76,0.65)';ctx.lineWidth=3;ctx.setLineDash([6,3]);ctx.stroke();ctx.setLineDash([]);
+    ctx.beginPath();ctx.arc(a.x,a.y,5,0,Math.PI*2);ctx.fillStyle='#c9a84c';ctx.fill();
+    ctx.beginPath();ctx.arc(b.x,b.y,5,0,Math.PI*2);ctx.fillStyle='#e7cf86';ctx.fill();
+  });
+  Object.entries(SNAKES).forEach(([from,to])=>{
+    const a=cellToXY(+from),b=cellToXY(+to);
+    ctx.beginPath();ctx.moveTo(a.x,a.y);
+    ctx.quadraticCurveTo((a.x+b.x)/2+25,(a.y+b.y)/2,b.x,b.y);
+    ctx.strokeStyle='rgba(192,57,43,0.7)';ctx.lineWidth=3;ctx.setLineDash([5,4]);ctx.stroke();ctx.setLineDash([]);
+    ctx.beginPath();ctx.arc(a.x,a.y,5,0,Math.PI*2);ctx.fillStyle='#c0392b';ctx.fill();
+  });
+  [0,1].forEach(i=>{
+    const ap=animPos[i];
+    ctx.beginPath();ctx.arc(ap.x,ap.y,SZ*0.19,0,Math.PI*2);
+    ctx.fillStyle=i===0?'#4a90d9':'#e74c3c';
+    ctx.shadowColor=i===0?'#4a90d9':'#e74c3c';ctx.shadowBlur=14;ctx.fill();ctx.shadowBlur=0;
+    ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.fillStyle='#fff';ctx.font=`bold ${SZ*0.18}px monospace`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(i===0?'Y':'C',ap.x,ap.y);
+  });
+}
+
+function animateTo(pi,tx,ty,dur,cb){
+  const sx=animPos[pi].x,sy=animPos[pi].y,st=performance.now();
+  function f(now){
+    const t=Math.min((now-st)/dur,1),e=t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+    animPos[pi].x=sx+(tx-sx)*e;animPos[pi].y=sy+(ty-sy)*e;
+    drawBoard();
+    t<1?requestAnimationFrame(f):(animPos[pi]={x:tx,y:ty},drawBoard(),cb());
+  }
+  requestAnimationFrame(f);
+}
+
+function animateSteps(pi,start,end,cb){
+  const steps=[];let p=start;const dir=end>start?1:-1;
+  while(p!==end){p+=dir;steps.push(p);}
+  let i=0;
+  function next(){
+    if(i>=steps.length){cb();return;}
+    const t=cellToXY(steps[i]),off=pi===0?-8:8;
+    animateTo(pi,t.x+off,t.y,110,()=>{pos[pi]=steps[i];document.getElementById('pos'+(pi+1)).textContent=pos[pi];i++;next();});
+  }
+  next();
+}
+
+function addLog(msg,type=''){
+  const el=document.createElement('div');
+  el.className='log-entry'+(type?' '+type:'');el.textContent=msg;
+  document.getElementById('log').prepend(el);
+}
+
+function updateCards(){
+  document.getElementById('pc1').className='player-card'+(turn===0?' active':'');
+  document.getElementById('pc2').className='player-card'+(turn===1?' active':'');
+}
+
+function rollDice(){
+  if(gameOver||animating)return;
+  animating=true;document.getElementById('rollBtn').disabled=true;
+  const die=document.getElementById('dice');die.classList.add('rolling');
+  let ticks=0;
+  const iv=setInterval(()=>{
+    const r=Math.ceil(Math.random()*6);die.textContent=DICE_FACES[r];ticks++;
+    if(ticks>8){clearInterval(iv);die.classList.remove('rolling');document.getElementById('dice-val').textContent='ROLLED: '+r;addLog((turn===0?'You':'CPU')+' rolled '+r);executeMove(r);}
+  },60);
+}
+
+function executeMove(val){
+  const pi=turn,start=pos[pi];let end=start+val;if(end>100)end=start;
+  animateSteps(pi,start,end,()=>{
+    if(LADDERS[end]){
+      addLog('Ladder! '+end+' → '+LADDERS[end],'special');
+      const t=cellToXY(LADDERS[end]),off=pi===0?-8:8;
+      animateTo(pi,t.x+off,t.y,500,()=>{pos[pi]=LADDERS[end];document.getElementById('pos'+(pi+1)).textContent=pos[pi];drawBoard();finishMove(pi);});
+    } else if(SNAKES[end]){
+      addLog('Snake! '+end+' → '+SNAKES[end],'special');
+      const t=cellToXY(SNAKES[end]),off=pi===0?-8:8;
+      animateTo(pi,t.x+off,t.y,600,()=>{pos[pi]=SNAKES[end];document.getElementById('pos'+(pi+1)).textContent=pos[pi];drawBoard();finishMove(pi);});
+    } else {finishMove(pi);}
+  });
+}
+
+function finishMove(pi){
+  if(pos[pi]>=100){
+    gameOver=true;animating=false;
+    const won=pi===0;
+    document.getElementById('winTitle').textContent=won?'YOU WIN!':'CPU WINS!';
+    document.getElementById('winSub').textContent=won?'Brilliant! You reached square 100!':'Better luck next time!';
+    addLog((pi===0?'YOU':'CPU')+' WON!','win');
+    setTimeout(()=>document.getElementById('overlay').className='overlay show',600);return;
+  }
+  turn=turn===0?1:0;updateCards();animating=false;
+  if(turn===1){
+    setTimeout(()=>{
+      animating=true;document.getElementById('rollBtn').disabled=true;
+      const v=Math.ceil(Math.random()*6);
+      document.getElementById('dice-val').textContent='CPU ROLLED: '+v;
+      document.getElementById('dice').textContent=DICE_FACES[v];
+      addLog('CPU rolled '+v);executeMove(v);
+    },900);
+  } else {document.getElementById('rollBtn').disabled=false;}
+}
+
+function resetGame(){
+  pos=[1,1];turn=0;gameOver=false;animating=false;
+  const p=cellToXY(1);animPos=[{x:p.x-8,y:p.y},{x:p.x+8,y:p.y}];
+  document.getElementById('overlay').className='overlay';
+  document.getElementById('rollBtn').disabled=false;
+  document.getElementById('dice').textContent='🎲';
+  document.getElementById('dice-val').textContent='ROLL THE DICE';
+  document.getElementById('log').innerHTML='';
+  document.getElementById('pos1').textContent=1;document.getElementById('pos2').textContent=1;
+  updateCards();drawBoard();
+}
+
+resetGame();
+</script>
+</body>
+</html>
