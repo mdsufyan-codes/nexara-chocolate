@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NEXARA Chocolate — Scan. Play. Indulge.</title>
+<meta name="description" content="NEXARA Chocolate — Dubai's luxury chocolate where technology meets taste. Scan the QR. Play the game. Indulge the moment." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Cormorant+Garamond:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0a1628;
+  --bg:#060d1a;
+  --gold:#c9a84c;
+  --gold-soft:#e7cf86;
+  --choc:#3d1c02;
+  --cream:#fdf8f2;
+  --muted:rgba(253,248,242,.65);
+  --line:rgba(201,168,76,.25);
+  --glass:rgba(10,22,40,.55);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--cream);font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.6;overflow-x:hidden;cursor:none}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+::selection{background:var(--gold);color:var(--navy)}
+
+/* Noise overlay */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.06;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* Cursor */
+.cursor{position:fixed;width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px var(--gold);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .15s ease, opacity .2s}
+.cursor.ring{width:36px;height:36px;background:transparent;border:1px solid var(--gold);box-shadow:none;opacity:.6;transition:transform .25s ease, width .25s, height .25s, opacity .25s}
+@media (max-width:900px){.cursor{display:none}html,body{cursor:auto}}
+
+/* Scroll progress */
+.progress{position:fixed;top:0;left:0;height:2px;width:0;background:linear-gradient(90deg,var(--gold),var(--gold-soft));z-index:1000;box-shadow:0 0 12px var(--gold)}
+
+/* Navbar */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:22px 6%;display:flex;align-items:center;justify-content:space-between;transition:all .4s ease;background:transparent}
+.nav.scrolled{background:rgba(6,13,26,.85);backdrop-filter:blur(14px);padding:14px 6%;border-bottom:1px solid var(--line)}
+.brand{font-family:'Playfair Display',serif;font-weight:700;letter-spacing:.35em;font-size:18px;color:var(--cream)}
+.brand span{color:var(--gold)}
+.nav ul{display:flex;gap:38px;list-style:none}
+.nav ul a{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.25em;text-transform:uppercase;position:relative;padding:6px 0;color:var(--cream);opacity:.85}
+.nav ul a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--gold);transition:width .35s ease}
+.nav ul a:hover::after,.nav ul a.active::after{width:100%}
+.nav ul a:hover{color:var(--gold);opacity:1}
+.burger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:none}
+.burger span{width:26px;height:1.5px;background:var(--gold);transition:.3s}
+@media(max-width:820px){
+  .nav ul{position:fixed;inset:0;background:var(--bg);flex-direction:column;justify-content:center;align-items:center;gap:36px;transform:translateX(100%);transition:.45s ease}
+  .nav ul.open{transform:translateX(0)}
+  .nav ul a{font-size:14px}
+  .burger{display:flex;z-index:101}
+}
+
+/* Buttons */
+.btn{
+  display:inline-flex;align-items:center;gap:12px;
+  font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.3em;text-transform:uppercase;
+  padding:18px 38px;border:1px solid var(--gold);color:var(--gold);background:transparent;
+  position:relative;overflow:hidden;cursor:none;transition:color .35s ease;
+}
+.btn::before{
+  content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(231,207,134,.4) 50%,transparent 70%);
+  transform:translateX(-100%);transition:transform .8s ease;
+}
+.btn:hover::before{transform:translateX(100%)}
+.btn.primary{background:var(--gold);color:var(--navy);box-shadow:0 0 30px rgba(201,168,76,.35)}
+.btn.primary:hover{box-shadow:0 0 50px rgba(201,168,76,.65)}
+
+/* Section base */
+section{position:relative;padding:140px 6%;z-index:2}
+.eyebrow{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:inline-block}
+h1,h2,h3,.display{font-family:'Playfair Display',serif;font-weight:700;letter-spacing:-.01em;line-height:1.05}
+h2{font-size:clamp(2.4rem,5vw,4rem);margin-bottom:24px}
+h3{font-size:1.6rem;margin-bottom:12px}
+.divider{display:flex;align-items:center;gap:14px;margin:30px 0;color:var(--gold)}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.divider .dot{width:6px;height:6px;background:var(--gold);transform:rotate(45deg)}
+
+/* Reveal */
+.reveal{opacity:0;transform:translateY(40px);transition:opacity .9s ease, transform .9s ease}
+.reveal.in{opacity:1;transform:none}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding-top:120px;text-align:center;overflow:hidden}
+.hero .bg{position:absolute;inset:0;z-index:0;background:
+  radial-gradient(ellipse at 50% 30%,rgba(201,168,76,.18),transparent 55%),
+  radial-gradient(ellipse at 80% 80%,rgba(61,28,2,.5),transparent 60%),
+  linear-gradient(180deg,#060d1a,#0a1628 60%,#060d1a)}
+.hero .bar{position:absolute;right:-2%;top:50%;width:45%;max-width:760px;transform:translateY(-50%) rotate(-12deg);opacity:.35;filter:drop-shadow(0 40px 80px rgba(0,0,0,.8));z-index:0;animation:float 8s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-54%) rotate(-10deg)}}
+.particles{position:absolute;inset:0;z-index:0;pointer-events:none}
+.particles span{position:absolute;width:3px;height:3px;background:var(--gold);border-radius:50%;opacity:.6;box-shadow:0 0 8px var(--gold);animation:rise linear infinite}
+@keyframes rise{0%{transform:translateY(100vh) scale(.4);opacity:0}10%{opacity:.7}100%{transform:translateY(-10vh) scale(1);opacity:0}}
+.hero-inner{position:relative;z-index:2;max-width:900px;padding:0 20px}
+.hero h1{font-size:clamp(3rem,9vw,7.5rem);font-weight:900;letter-spacing:.04em;margin-bottom:24px;background:linear-gradient(180deg,#fdf8f2 0%,#c9a84c 100%);-webkit-background-clip:text;background-clip:text;color:transparent;animation:fadeUp 1.2s .2s both}
+.hero .sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(1.1rem,2vw,1.5rem);color:var(--muted);margin-bottom:34px;animation:fadeUp 1.2s .5s both}
+.hero .tagline{font-family:'Space Mono',monospace;color:var(--gold);font-size:clamp(.85rem,1.4vw,1rem);letter-spacing:.5em;text-transform:uppercase;margin-bottom:50px;animation:fadeUp 1.2s .7s both}
+.hero .tagline .sep{opacity:.5;margin:0 10px}
+.hero .cta{animation:fadeUp 1.2s .9s both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+.scroll-down{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:10px;z-index:2}
+.scroll-down .arr{width:1px;height:50px;background:linear-gradient(180deg,var(--gold),transparent);position:relative}
+.scroll-down .arr::after{content:"";position:absolute;bottom:0;left:50%;transform:translateX(-50%) rotate(45deg);width:8px;height:8px;border-right:1px solid var(--gold);border-bottom:1px solid var(--gold);animation:bounce 2s infinite}
+@keyframes bounce{0%,100%{transform:translateX(-50%) rotate(45deg) translateY(0)}50%{transform:translateX(-50%) rotate(45deg) translateY(8px)}}
+
+/* ABOUT */
+.about{background:linear-gradient(180deg,#060d1a,#0a1628)}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;max-width:1300px;margin:0 auto}
+.about p{color:var(--muted);font-size:1.15rem;margin-bottom:18px}
+.about .visual{position:relative}
+.about .visual img{border-radius:4px;box-shadow:0 30px 80px rgba(0,0,0,.6);border:1px solid var(--line)}
+.about .visual::before{content:"";position:absolute;inset:-20px;border:1px solid var(--gold);opacity:.4;pointer-events:none}
+@media(max-width:820px){.about-grid{grid-template-columns:1fr;gap:50px}}
+
+/* EXPERIENCE */
+.exp{background:radial-gradient(ellipse at top,rgba(201,168,76,.06),transparent 60%),var(--bg)}
+.center{text-align:center;max-width:700px;margin:0 auto 70px}
+.exp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;max-width:1300px;margin:0 auto}
+.exp-card{
+  background:var(--glass);backdrop-filter:blur(10px);
+  border:1px solid var(--line);padding:50px 36px;text-align:center;
+  position:relative;transition:.5s ease;overflow:hidden;
+}
+.exp-card::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(201,168,76,.1),transparent 50%);opacity:0;transition:.5s}
+.exp-card:hover{transform:translateY(-10px);border-color:var(--gold);box-shadow:0 25px 60px rgba(201,168,76,.2)}
+.exp-card:hover::before{opacity:1}
+.exp-num{font-family:'Playfair Display',serif;font-size:4rem;color:var(--gold);font-weight:700;line-height:1;margin-bottom:20px;display:inline-block;position:relative}
+.exp-num::after{content:"";position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:30px;height:1px;background:var(--gold)}
+.exp-card h3{color:var(--cream);font-size:1.7rem;letter-spacing:.05em}
+.exp-card p{color:var(--muted)}
+@media(max-width:820px){.exp-grid{grid-template-columns:1fr}}
+
+/* PRODUCTS */
+.products{background:linear-gradient(180deg,#0a1628,#060d1a)}
+.prod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:34px;max-width:1300px;margin:0 auto}
+.prod{position:relative;background:var(--glass);border:1px solid var(--line);overflow:hidden;transition:.5s;backdrop-filter:blur(8px)}
+.prod:hover{transform:translateY(-8px);border-color:var(--gold);box-shadow:0 30px 70px rgba(201,168,76,.18)}
+.prod .img{aspect-ratio:4/5;overflow:hidden;background:#000}
+.prod .img img{width:100%;height:100%;object-fit:cover;object-position:35% center;transition:transform .8s ease;filter:brightness(.9)}
+.prod:hover .img img{transform:scale(1.08);filter:brightness(1)}
+.prod .body{padding:30px}
+.prod h3{font-size:1.8rem;color:var(--cream);margin-bottom:6px}
+.prod .type{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin-bottom:14px;display:block}
+.prod p{color:var(--muted);font-size:1.05rem}
+.badge{position:absolute;top:18px;right:18px;background:var(--gold);color:var(--navy);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.25em;padding:8px 14px;text-transform:uppercase;z-index:2}
+@media(max-width:820px){.prod-grid{grid-template-columns:1fr}}
+
+/* GAME */
+.game{background:radial-gradient(ellipse at center,rgba(201,168,76,.08),transparent 60%),var(--bg);text-align:center}
+.qr{
+  width:220px;height:220px;margin:50px auto;position:relative;
+  background:var(--cream);padding:20px;
+  box-shadow:0 0 80px rgba(201,168,76,.5);
+  animation:pulseGlow 3s ease-in-out infinite;
+}
+@keyframes pulseGlow{50%{box-shadow:0 0 120px rgba(201,168,76,.8)}}
+.qr svg{width:100%;height:100%}
+.qr::before,.qr::after{content:"";position:absolute;width:30px;height:30px;border:2px solid var(--gold)}
+.qr::before{top:-12px;left:-12px;border-right:none;border-bottom:none}
+.qr::after{bottom:-12px;right:-12px;border-left:none;border-top:none}
+.games-row{display:flex;justify-content:center;gap:50px;flex-wrap:wrap;margin:50px 0}
+.game-icon{display:flex;flex-direction:column;align-items:center;gap:14px;color:var(--cream);transition:.3s}
+.game-icon:hover{color:var(--gold);transform:translateY(-6px)}
+.game-icon .ic{width:70px;height:70px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:30px;transition:.3s}
+.game-icon:hover .ic{border-color:var(--gold);box-shadow:0 0 30px rgba(201,168,76,.4)}
+.game-icon span{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.25em;text-transform:uppercase}
+
+/* TESTIMONIALS */
+.testi{background:linear-gradient(180deg,#060d1a,#0a1628)}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;max-width:1300px;margin:0 auto}
+.t-card{background:var(--glass);backdrop-filter:blur(8px);border:1px solid var(--line);padding:40px;transition:.4s;position:relative}
+.t-card:hover{border-color:var(--gold);transform:translateY(-6px)}
+.stars{color:var(--gold);letter-spacing:4px;margin-bottom:20px;font-size:14px}
+.t-card .quote{font-style:italic;font-size:1.15rem;color:var(--cream);margin-bottom:24px;line-height:1.7}
+.t-card .who{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.25em;color:var(--gold);text-transform:uppercase}
+.t-card .role{display:block;color:var(--muted);font-size:11px;margin-top:4px}
+@media(max-width:820px){.testi-grid{grid-template-columns:1fr}}
+
+/* FOOTER */
+footer{background:#04091a;border-top:1px solid var(--line);padding:80px 6% 30px;position:relative;z-index:2}
+.foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:50px;max-width:1300px;margin:0 auto 50px}
+footer .brand-big{font-family:'Playfair Display',serif;font-weight:900;font-size:2.2rem;letter-spacing:.2em;color:var(--cream);margin-bottom:14px}
+footer .brand-big span{color:var(--gold)}
+footer .tag{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.4em;color:var(--gold);text-transform:uppercase;margin-bottom:24px}
+footer p.about-line{color:var(--muted);max-width:380px}
+footer h4{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin-bottom:20px}
+footer ul{list-style:none;display:flex;flex-direction:column;gap:12px}
+footer ul a{color:var(--cream);opacity:.75;transition:.3s;font-size:1rem}
+footer ul a:hover{color:var(--gold);opacity:1;padding-left:6px}
+.socials{display:flex;gap:14px}
+.socials a{width:40px;height:40px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;border-radius:50%;color:var(--cream);transition:.3s}
+.socials a:hover{border-color:var(--gold);color:var(--gold);box-shadow:0 0 20px rgba(201,168,76,.3)}
+.foot-bottom{max-width:1300px;margin:0 auto;padding-top:30px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
+.foot-bottom .nx{color:var(--gold)}
+@media(max-width:820px){.foot-grid{grid-template-columns:1fr 1fr;gap:40px}.foot-grid > div:first-child{grid-column:span 2}}
+@media(max-width:540px){.foot-grid{grid-template-columns:1fr}.foot-grid > div:first-child{grid-column:span 1}section{padding:90px 6%}}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor ring" id="cursorRing"></div>
+<div class="progress" id="progress"></div>
+
+<nav class="nav" id="nav">
+  <a href="#hero" class="brand">NE<span>X</span>ARA</a>
+  <ul id="menu">
+    <li><a href="#about" class="navlink">About</a></li>
+    <li><a href="#experience" class="navlink">Experience</a></li>
+    <li><a href="#products" class="navlink">Products</a></li>
+    <li><a href="#game" class="navlink">Play</a></li>
+    <li><a href="#contact" class="navlink">Contact</a></li>
+  </ul>
+  <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="bg"></div>
+  <img src="images/BLUE.png" alt="Nexara luxury chocolate bar with QR code" class="bar" />
+  <div class="particles" id="particles"></div>
+  <div class="hero-inner">
+    <span class="eyebrow">A Dubai Original · Est. 2025</span>
+    <h1>NEXARA<br/>CHOCOLATE</h1>
+    <p class="sub">Where Technology Meets Taste.</p>
+    <p class="tagline">Scan<span class="sep">·</span>Play<span class="sep">·</span>Indulge</p>
+    <a href="#about" class="btn primary cta">Discover the Experience →</a>
+  </div>
+  <a href="#about" class="scroll-down">Scroll<div class="arr"></div></a>
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="about-grid">
+    <div class="reveal">
+      <span class="eyebrow">Our Philosophy</span>
+      <h2>Chocolate<br/>Reimagined.</h2>
+      <div class="divider"><span class="dot"></span></div>
+      <p>Nexara is not simply chocolate. It is a portal — a moment of indulgence that opens into play. Hand-crafted in the heart of Dubai, every bar is a marriage of single-origin cocoa and quiet, modern technology.</p>
+      <p>On the back of every wrapper, a discreet gold QR code invites you in. Scan it, and the world slows. Childhood games appear. Time becomes yours again.</p>
+      <p style="color:var(--gold);font-style:italic;margin-top:24px;font-size:1.2rem">"Taste the present. Play the past."</p>
+    </div>
+    <div class="visual reveal">
+      <img src="images/ARABIAN.png" alt="Nexara chocolate bar with gold QR code on navy wrapper" />
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section class="exp" id="experience">
+  <div class="center reveal">
+    <span class="eyebrow">The Ritual</span>
+    <h2>Three Steps to Indulgence</h2>
+    <div class="divider"><span class="dot"></span></div>
+  </div>
+  <div class="exp-grid">
+    <div class="exp-card reveal"><span class="exp-num">01</span><h3>Buy</h3><p>Choose your bar from our curated collection — each one a small, deliberate luxury.</p></div>
+    <div class="exp-card reveal"><span class="exp-num">02</span><h3>Scan</h3><p>Lift the wrapper. Find the gold QR. A single scan opens the Nexara portal.</p></div>
+    <div class="exp-card reveal"><span class="exp-num">03</span><h3>Play</h3><p>Step into a private games lounge — Snakes &amp; Ladders, Chess, Tic Tac Toe, and more.</p></div>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section class="products" id="products">
+  <div class="center reveal">
+    <span class="eyebrow">The Collection</span>
+    <h2>Three Bars. Three Worlds.</h2>
+    <div class="divider"><span class="dot"></span></div>
+  </div>
+  <div class="prod-grid">
+    <article class="prod reveal">
+      <div class="img"><img src="images/BLUE.png" alt="Midnight Dark 85% chocolate bar" style="object-position:72% center;"/></div>
+      <div class="body"><span class="type">85% Cacao · Dark</span><h3>Midnight Dark</h3><p>Deep, intense, unapologetic. Notes of black cherry and roasted almond.</p></div>
+    </article>
+    <article class="prod reveal">
+      <div class="img"><img src="images/GOLDEN.png" alt="Golden Milk premium milk chocolate bar"/></div>
+      <div class="body"><span class="type">38% Cacao · Milk</span><h3>Golden Milk</h3><p>Silken Madagascan milk chocolate, slow-conched for 72 hours.</p></div>
+    </article>
+    <article class="prod reveal">
+      <span class="badge">Coming Soon</span>
+      <div class="img"><img src="images/ARABIAN.png" alt="Arabian Spice cardamom and saffron chocolate bar"/></div>
+      <div class="body"><span class="type">Limited · Special Edition</span><h3>Arabian Spice</h3><p>Cardamom, saffron, and a whisper of rose. A love letter to the desert.</p></div>
+    </article>
+  </div>
+</section>
+
+<!-- GAME -->
+<section class="game" id="game">
+  <div class="center reveal">
+    <span class="eyebrow">The Hidden Layer</span>
+    <h2>Every Bar Hides a Game.</h2>
+    <div class="divider"><span class="dot"></span></div>
+    <p style="color:var(--muted);font-size:1.2rem;max-width:620px;margin:0 auto">Scan the gold QR on any Nexara wrapper and step into our private games portal — a quiet rebellion against the noise of modern life.</p>
+  </div>
+
+  <div class="qr reveal" aria-label="QR code preview">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="#0a1628">
+      <rect x="0" y="0" width="30" height="30" fill="none" stroke="#0a1628" stroke-width="6"/>
+      <rect x="9" y="9" width="12" height="12"/>
+      <rect x="70" y="0" width="30" height="30" fill="none" stroke="#0a1628" stroke-width="6"/>
+      <rect x="79" y="9" width="12" height="12"/>
+      <rect x="0" y="70" width="30" height="30" fill="none" stroke="#0a1628" stroke-width="6"/>
+      <rect x="9" y="79" width="12" height="12"/>
+      <rect x="40" y="10" width="6" height="6"/><rect x="50" y="10" width="6" height="6"/><rect x="60" y="20" width="6" height="6"/>
+      <rect x="40" y="30" width="6" height="6"/><rect x="50" y="40" width="6" height="6"/><rect x="60" y="40" width="6" height="6"/>
+      <rect x="40" y="50" width="6" height="6"/><rect x="70" y="50" width="6" height="6"/><rect x="80" y="50" width="6" height="6"/>
+      <rect x="40" y="60" width="6" height="6"/><rect x="50" y="60" width="6" height="6"/><rect x="60" y="70" width="6" height="6"/>
+      <rect x="40" y="80" width="6" height="6"/><rect x="50" y="90" width="6" height="6"/><rect x="60" y="90" width="6" height="6"/>
+      <rect x="70" y="70" width="6" height="6"/><rect x="80" y="80" width="6" height="6"/><rect x="90" y="70" width="6" height="6"/>
+      <rect x="10" y="40" width="6" height="6"/><rect x="20" y="50" width="6" height="6"/><rect x="10" y="60" width="6" height="6"/>
+    </svg>
+  </div>
+
+  <div class="games-row reveal">
+    <div class="game-icon"><div class="ic">🐍</div><span>Snakes &amp; Ladders</span></div>
+  </div>
+
+  <div class="reveal" style="text-align:center"><a href="/games.html" class="btn primary">Play Now →</a></div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testi">
+  <div class="center reveal">
+    <span class="eyebrow">Whispers</span>
+    <h2>What Dubai Says</h2>
+    <div class="divider"><span class="dot"></span></div>
+  </div>
+  <div class="testi-grid">
+    <div class="t-card reveal">
+      <div class="stars">★ ★ ★ ★ ★</div>
+      <p class="quote">"The first bar that made me put my phone down — by handing me a better reason to pick it up."</p>
+      <div class="who">Layla Al-Mansoori<span class="role">Founder, Dune House</span></div>
+    </div>
+    <div class="t-card reveal">
+      <div class="stars">★ ★ ★ ★ ★</div>
+      <p class="quote">"Nexara turned a chocolate break into a ten-minute holiday. My boardroom now keeps a stash."</p>
+      <div class="who">Omar Saeed<span class="role">DIFC Investor</span></div>
+    </div>
+    <div class="t-card reveal">
+      <div class="stars">★ ★ ★ ★ ★</div>
+      <p class="quote">"Beyond delicious. The hidden game is genius — a love letter to anyone who grew up in the 90s."</p>
+      <div class="who">Sara Khalifa<span class="role">Editor, Marina Living</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="contact">
+  <div class="foot-grid">
+    <div>
+      <div class="brand-big">NE<span>X</span>ARA</div>
+      <div class="tag">Scan · Play · Indulge</div>
+      <p class="about-line">A Dubai-born luxury chocolate house where every bar is a quiet portal — premium cocoa above, hidden play below.</p>
+    </div>
+    <div>
+      <h4>Explore</h4>
+      <ul>
+        <li><a href="#about">About</a></li>
+        <li><a href="#products">Products</a></li>
+        <li><a href="#game">Play</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Visit</h4>
+      <ul>
+        <li><a href="#">Dubai Mall Boutique</a></li>
+        <li><a href="#">DIFC Lounge</a></li>
+        <li><a href="#">Marina Atelier</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Follow</h4>
+      <div class="socials">
+        <a href="#" aria-label="Instagram">◐</a>
+        <a href="#" aria-label="X">✕</a>
+        <a href="#" aria-label="TikTok">♪</a>
+        <a href="#" aria-label="Email">✉</a>
+      </div>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span>© 2025 Nexara Chocolate · Dubai, UAE</span>
+    <span class="nx">A Nexus Blue Experience</span>
+  </div>
+</footer>
+
+<script>
+// Cursor
+const cur = document.getElementById('cursor'), ring = document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+window.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+function loop(){rx+=(mx-rx)*.15;ry+=(my-ry)*.15;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(loop)}loop();
+document.querySelectorAll('a,button,.btn,.exp-card,.prod,.game-icon').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{ring.style.transform='translate(-50%,-50%) scale(1.5)';ring.style.borderColor='#e7cf86'});
+  el.addEventListener('mouseleave',()=>{ring.style.transform='translate(-50%,-50%) scale(1)';ring.style.borderColor='#c9a84c'});
+});
+
+// Scroll progress + nav
+const nav=document.getElementById('nav'),prog=document.getElementById('progress');
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement.scrollHeight-window.innerHeight;
+  prog.style.width=(window.scrollY/h*100)+'%';
+  nav.classList.toggle('scrolled',window.scrollY>40);
+});
+
+// Reveal on scroll
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.15});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+// Active nav link
+const links=document.querySelectorAll('.navlink');
+const sections=['about','experience','products','game','contact'].map(id=>document.getElementById(id));
+window.addEventListener('scroll',()=>{
+  const y=window.scrollY+window.innerHeight*.3;
+  let active='';
+  sections.forEach(s=>{if(s && s.offsetTop<=y) active=s.id});
+  links.forEach(l=>l.classList.toggle('active',l.getAttribute('href')==='#'+active));
+});
+
+// Burger
+const burger=document.getElementById('burger'),menu=document.getElementById('menu');
+burger.addEventListener('click',()=>menu.classList.toggle('open'));
+menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>menu.classList.remove('open')));
+
+// Particles
+const pc=document.getElementById('particles');
+for(let i=0;i<28;i++){const s=document.createElement('span');s.style.left=Math.random()*100+'%';s.style.animationDuration=(8+Math.random()*10)+'s';s.style.animationDelay=(Math.random()*8)+'s';s.style.opacity=.2+Math.random()*.6;pc.appendChild(s)}
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{
+  const id=a.getAttribute('href');if(id.length<2)return;const t=document.querySelector(id);if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'})}
+}));
+
+// Parallax hero
+const heroBar=document.querySelector('.hero .bar');
+window.addEventListener('scroll',()=>{const y=window.scrollY;if(y<window.innerHeight)heroBar.style.transform=`translateY(calc(-50% + ${y*.3}px)) rotate(${-12+y*.01}deg)`});
+</script>
+</body>
+</html>
